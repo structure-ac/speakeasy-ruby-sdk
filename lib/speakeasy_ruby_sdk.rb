@@ -1,6 +1,7 @@
 require_relative 'speakeasy_ruby_sdk/version'
 require_relative 'speakeasy_ruby_sdk/config'
 require_relative 'speakeasy_ruby_sdk/url_utils'
+require_relative 'speakeasy_ruby_sdk/http_transaction'
 
 module SpeakeasyRubySdk
   class Middleware
@@ -15,7 +16,7 @@ module SpeakeasyRubySdk
       puts 'Middleware reporting in!'
       puts "Server url #{@config.ingestion_server_url} #{@config.speakeasy_version}"
 
-      status, headers, response_body = @app.call(env)
+      status, response_headers, response_body = @app.call(env)
 
       ## TODO - Content-Type and Content-Length request headers are not handled
       ## consistently, and my initial research couldn't expose them.
@@ -24,13 +25,14 @@ module SpeakeasyRubySdk
         .collect {|k,v| [k.split('_').collect(&:capitalize).join('-'), v]}
         .sort
         .flatten]
-      response_headers = headers
       request_body = env['rack.input'].read
 
       query_params = Rack::Utils.parse_nested_query(env['QUERY_STRING'])
       request_url = SpeakeasyRubySdk::UrlUtils.resolve_url env, request_headers, query_params
 
-      [status, headers, response_body]
+      http_request = SpeakeasyRubySdk::HttpTransaction.new status, env, request_headers, response_headers, query_params, request_body, response_body
+
+      [status, response_headers, response_body]
     end
   end
 end
