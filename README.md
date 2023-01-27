@@ -51,19 +51,30 @@ learn more.
 
 **warning** Some common middlewares, like `ActionDispatch::Cookies` may rewrite headers in order to provide additional functionality to your app.  In order to capture the original headers, be sure to `use` the Speakeasy middleware before `use`ing any such middlewares.  There is no harm in `use`ing the Speakeasy Ruby Sdk Middleware as your first middleware.
 
-### Advanced configuration
+### Tracking Multiple APIs configuration
 
 The Speakeasy SDK is confirgurable using a config parameter. If you want to use the SDK to track multiple Apis or Versions from the same service you can configure individual instances of the SDK, like so:
 
 ```ruby
-    speakeasy_config = {
-      ingestion_server_url: "localhost:443",
+    speakeasy_config_1 = {
+      api_key: "YOUR API KEY HERE",
+      api_id: "YOUR API ID HERE",
+      version_id: "YOUR API VERSION HERE"
+    }
+    speakeasy_config_2 = {
       api_key: "YOUR API KEY HERE",
       api_id: "YOUR API ID HERE",
       version_id: "YOUR API VERSION HERE"
     }
 
-    config.middleware.use SpeakeasyRubySdk::Middleware, config
+    config.middleware.use SpeakeasyRubySdk::Middleware, speakeasy_config_1
+    config.middleware.use SpeakeasyRubySdk::Middleware, speakeasy_config_2
 ```
 
 This allows multiple instances of the SDK to be associated with different routers or routes within your service.
+
+### Only Tracking Some Routes
+
+We recommend using the approach native to your framework to limit the application of the Speakeasy middleware.  In Rails, that approach is [Engines](https://guides.rubyonrails.org/engines.html), in Sinatra, middleware are `use`'d by controllers, so add the directive to a Controller which is the parent of those routes you wish to track.
+
+## todo - add Sinatra examples
