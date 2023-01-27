@@ -1,3 +1,4 @@
+require 'http-cookie'
 
 module SpeakeasyRubySdk
   class HttpTransaction
@@ -20,26 +21,32 @@ module SpeakeasyRubySdk
       query_params = Rack::Utils.parse_nested_query(env['QUERY_STRING'])
       request_url = UrlUtils.resolve_url env, request_headers, query_params
 
-      @request = HttpRequest.new request_url, request_headers, query_params, request_body
-      @response = HttpResponse.new response_headers, response_body
+      request_cookies = CGI::Cookie.parse(request_headers['Cookie'] || '').map {|cookie| [cookie[0], cookie[1][0]] }
+      response_cookies = HTTP::Cookie.parse(response_headers['Set-Cookie'] || '', request_url)
+
+
+      @request = HttpRequest.new request_url, request_headers, query_params, request_body, request_cookies
+      @response = HttpResponse.new response_headers, response_body, response_cookies
     end
   end
 
   class HttpRequest
-    attr_accessor :request_url, :query_params, :request_headers, :request_body
-    def initialize request_url, request_headers, query_params, request_body
+    attr_accessor :request_url, :query_params, :request_headers, :request_body, :request_cookies
+    def initialize request_url, request_headers, query_params, request_body, request_cookies
       @request_url = request_url
       @query_params = query_params
       @request_headers = request_headers
       @request_body = request_body
+      @request_cookies = request_cookies
     end
   end
 
   class HttpResponse
-    attr_accessor :response_headers, :response_body
-    def initialize response_headers, response_body
+    attr_accessor :response_headers, :response_body, :response_cookies
+    def initialize response_headers, response_body, response_cookies
       @response_headers = response_headers
       @response_body = response_body
+      @response_cookies = response_cookies
     end
   end
 end
