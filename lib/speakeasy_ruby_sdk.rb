@@ -1,6 +1,6 @@
-require 'speakeasy_ruby_sdk/version'
-require 'speakeasy_ruby_sdk/config'
-require 'speakeasy_ruby_sdk/url_utils'
+require_relative 'speakeasy_ruby_sdk/version'
+require_relative 'speakeasy_ruby_sdk/config'
+require_relative 'speakeasy_ruby_sdk/url_utils'
 
 module SpeakeasyRubySdk
   class Middleware
