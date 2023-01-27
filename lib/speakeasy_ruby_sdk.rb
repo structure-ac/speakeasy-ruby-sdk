@@ -14,12 +14,13 @@ module SpeakeasyRubySdk
     end
    
     def call(env)
+      start_time = Time.now
       puts 'Middleware reporting in!'
       puts "Server url #{@config.ingestion_server_url} #{@config.speakeasy_version}"
 
       status, response_headers, response_body = @app.call(env)
 
-      http_request = HttpTransaction.new env, status, response_headers, response_body
+      http_request = HttpTransaction.new start_time, env, status, response_headers, response_body
 
       har = HarBuilder.construct_har http_request
 

@@ -2,11 +2,12 @@ require 'http-cookie'
 
 module SpeakeasyRubySdk
   class HttpTransaction
-    attr_accessor :status, :env, :request, :response
-    def initialize env, status, response_headers, response_body
+    attr_reader :start_time, :status, :env, :request, :response, :protocol
+    def initialize start_time, env, status, response_headers, response_body
+      @start_time = start_time
       @status = status
       @env = env
-
+      @protocol = env['SERVER_PROTOCOL']
       ## TODO - Content-Type and Content-Length request headers are not handled
       ## consistently, and my initial research couldn't expose them.
       
@@ -17,6 +18,7 @@ module SpeakeasyRubySdk
         .sort
         .flatten]
       request_body = env['rack.input'].read
+      request_method = env['REQUEST_METHOD']
 
       query_params = Rack::Utils.parse_nested_query(env['QUERY_STRING'])
       request_url = UrlUtils.resolve_url env, request_headers, query_params
@@ -24,29 +26,32 @@ module SpeakeasyRubySdk
       request_cookies = CGI::Cookie.parse(request_headers['Cookie'] || '').map {|cookie| [cookie[0], cookie[1][0]] }
       response_cookies = HTTP::Cookie.parse(response_headers['Set-Cookie'] || '', request_url)
 
-
-      @request = HttpRequest.new request_url, request_headers, query_params, request_body, request_cookies
-      @response = HttpResponse.new response_headers, response_body, response_cookies
+      @request = HttpRequest.new self, request_url, request_method, request_headers, query_params, request_body, request_cookies
+      @response = HttpResponse.new self, status, response_headers, response_body, response_cookies
     end
   end
 
   class HttpRequest
-    attr_accessor :request_url, :query_params, :request_headers, :request_body, :request_cookies
-    def initialize request_url, request_headers, query_params, request_body, request_cookies
-      @request_url = request_url
+    attr_reader :transaction, :method, :url, :query_params, :headers, :body, :cookies
+    def initialize transaction, request_url, request_method, request_headers, query_params, request_body, request_cookies
+      @transaction = transaction
+      @url = request_url
       @query_params = query_params
-      @request_headers = request_headers
-      @request_body = request_body
-      @request_cookies = request_cookies
+      @method = request_method
+      @headers = request_headers
+      @body = request_body
+      @cookies = request_cookies
     end
   end
 
   class HttpResponse
-    attr_accessor :response_headers, :response_body, :response_cookies
-    def initialize response_headers, response_body, response_cookies
-      @response_headers = response_headers
-      @response_body = response_body
-      @response_cookies = response_cookies
+    attr_reader :transaction, :status, :headers, :body, :cookies
+    def initialize transaction, status, response_headers, response_body, response_cookies
+      @transaction = transaction
+      @status = status
+      @headers = response_headers
+      @body = response_body.present? ? response_body.body : ""
+      @cookies = response_cookies
     end
   end
 end
