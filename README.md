@@ -12,7 +12,7 @@ Tested and supported Frameworks include:
 * rails
 * sinatra
 
-However, the Speakeasy Ruby SDK depends only upon Rack, so other frameworks should work.
+The Speakeasy Ruby SDK depends only upon Rack, however, so other frameworks should work.
 
 ## Installation
 
