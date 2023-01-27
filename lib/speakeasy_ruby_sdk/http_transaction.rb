@@ -2,9 +2,24 @@
 module SpeakeasyRubySdk
   class HttpTransaction
     attr_accessor :status, :env, :request, :response
-    def initialize status, env, request_url, request_headers, response_headers, query_params, request_body, response_body
+    def initialize env, status, response_headers, response_body
       @status = status
       @env = env
+
+      ## TODO - Content-Type and Content-Length request headers are not handled
+      ## consistently, and my initial research couldn't expose them.
+      
+      # normalize request headers
+      request_headers = Hash[*env.select {|k,v| k.start_with? 'HTTP_'}
+        .collect {|k,v| [k.sub(/^HTTP_/, ''), v]}
+        .collect {|k,v| [k.split('_').collect(&:capitalize).join('-'), v]}
+        .sort
+        .flatten]
+      request_body = env['rack.input'].read
+
+      query_params = Rack::Utils.parse_nested_query(env['QUERY_STRING'])
+      request_url = UrlUtils.resolve_url env, request_headers, query_params
+
       @request = HttpRequest.new request_url, request_headers, query_params, request_body
       @response = HttpResponse.new response_headers, response_body
     end
