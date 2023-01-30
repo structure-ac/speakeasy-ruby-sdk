@@ -23,4 +23,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('grpc', '~> 1.51.0')
   s.add_runtime_dependency('har', '~> 0.1.5')
   s.add_runtime_dependency('http-cookie', '~> 1.0')
+  s.add_runtime_dependency('speakeasy_pb')
 end
