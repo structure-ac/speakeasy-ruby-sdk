@@ -6,6 +6,10 @@ module SpeakeasyRubySdk
     def initialize config
       @routes = config.routes
       @masking = config.masking
+
+      @masking.map{ |key, mask|
+        mask[:attributes] = mask[:attributes].map { |attr| attr.downcase }
+        }
     end
 
     def mask_value mask, path, value
@@ -21,39 +25,63 @@ module SpeakeasyRubySdk
       end      
     end
 
-    def mask_query_param path, key, value
+    def mask_pair masking_key, path, key, value
       masked_value = value
-      for mask in @masking[:query_string]
-        if mask[:attributes].include? key.to_s
+      if @masking.include? masking_key
+        mask = @masking[masking_key]
+        if mask[:attributes].include? key.to_s.downcase
           masked_value = mask_value mask, path, mask[:value]
         end
       end
       return masked_value
     end
-
-    def mask_query_params path, query_params      
-      masked_params = {}
-      for k, v in query_params
-        masked_params[k] = mask_query_param(path, k, v)
+    
+    def mask_dict masking_key, path, hash_map
+      masked_dict = {}
+      for key, value in hash_map
+        masked_dict[key] = mask_pair masking_key, path, key, value
       end
-      masked_params
+      masked_dict
     end
 
-    def mask_headers headers
-      # TODO
-      headers
+    def mask_query_params path, query_params
+      mask_dict :query_params, path, query_params
     end
 
-    def mask_body body
+    def mask_request_headers path, headers
+      mask_dict :request_headers, path, headers
+    end
+
+    def mask_response_headers path, headers
+      mask_dict :response_headers, path, headers
+    end
+
+    def mask_request_cookies path, cookies
+      mask_dict :request_cookies, path, cookies
+    end
+
+    def mask_response_cookies path, cookies
+      for cookie in cookies
+        key = cookie.name
+        value = cookie.value
+        masked_value = self.mask_pair :response_cookies, path, key, value
+        cookie.value = masked_value
+      end
+      cookies
+    end
+
+    def mask_request_body body
       # TODO
       body
     end
 
-    def mask_cookie cookie
+    def mask_response_body body
       # TODO
-      cookie
+      body
     end
 
 
   end
 end
+
+

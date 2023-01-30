@@ -15,9 +15,9 @@ class MaskerTest < Test::Unit::TestCase
     masker_config = {
       routes: nil,
       masking: {
-        query_string: [{
+        query_params: {
           attributes: ['carrot'],
-        }]
+        }
       }
     }
     masker = MaskerTest::init_masker(masker_config)
@@ -33,9 +33,9 @@ class MaskerTest < Test::Unit::TestCase
     masker_config = {
       routes: nil,
       masking: {
-        query_string: [{
+        query_params: {
           attributes: ['carrot', 'parsnip', 'unknown'],
-        }]
+        }
       }
     }
     masker = MaskerTest::init_masker(masker_config)
@@ -52,10 +52,10 @@ class MaskerTest < Test::Unit::TestCase
     masker_config = {
       routes: nil,
       masking: {
-        query_string: [{
+        query_params: {
           attributes: ['carrot'],
           value: "_MASK_"
-        }]
+        }
       }
     }
     masker = MaskerTest::init_masker(masker_config)
@@ -66,30 +66,6 @@ class MaskerTest < Test::Unit::TestCase
 
     assert_equal("_MASK_", masked_params[:carrot])
     assert_equal(query_params[:parsnip], masked_params[:parsnip]) # Should be unchanged
-  end
-
-  def test_multiple_query_param_masks
-    masker_config = {
-      routes: nil,
-      masking: {
-        query_string: [{
-          attributes: ['carrot'],
-          value: "_MASK_"
-        }, {
-          attributes: ['parsnip'],
-          value: "_OTHER_"
-        }
-      ]
-      }
-    }
-    masker = MaskerTest::init_masker(masker_config)
-
-    query_params = {'carrot': 'stick', 'parsnip': 'triangular'}
-
-    masked_params = masker.mask_query_params '', query_params
-
-    assert_equal("_MASK_", masked_params[:carrot])
-    assert_equal("_OTHER_", masked_params[:parsnip])
   end
 
 end
