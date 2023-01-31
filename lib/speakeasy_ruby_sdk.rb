@@ -28,20 +28,19 @@ module SpeakeasyRubySdk
       http_request = HttpTransaction.new start_time, env, status, response_headers, response_body, @masker
 
       har = HarBuilder.construct_har http_request
-      pp har
 
-      # credentials = GRPC::Core::ChannelCredentials.new()
-      # @ingest_client = Ingest::IngestService::Stub.new(@config.ingestion_server_url, credentials)
+      credentials = GRPC::Core::ChannelCredentials.new()
+      @ingest_client = Ingest::IngestService::Stub.new(@config.ingestion_server_url, credentials)
 
-      # request = Ingest::IngestRequest.new
-      # request.api_id = @config.api_id
-      # request.path_hint = ''
-      # request.version_id = @config.version_id
-      # request.customer_id = ''
-      # request.har = har
+      request = Ingest::IngestRequest.new
+      request.api_id = @config.api_id
+      request.path_hint = ''
+      request.version_id = @config.version_id
+      request.customer_id = ''
+      request.har = har
 
-      # metadata = {"x-api-key": @config.api_key}
-      # response = @ingest_client.ingest(request, metadata: metadata)
+      metadata = {"x-api-key": @config.api_key}
+      response = @ingest_client.ingest(request, metadata: metadata)
 
 
 
