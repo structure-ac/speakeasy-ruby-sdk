@@ -103,7 +103,8 @@ module SpeakeasyRubySdk
       return {
         "method": request.method,
         "url": request.url.path, ## Should this be the full url?
-        "httpVersion": request.transaction.protocol, # TODO
+        "httpVersion": request.transaction.protocol,
+        "cookies": self.construct_request_cookies(request.cookies),
         "headers": self.construct_header_records(request.headers),
         "queryString": self.construct_query_records(request.query_params),
         "postData":    self.construct_post_data(request.body, request.headers),

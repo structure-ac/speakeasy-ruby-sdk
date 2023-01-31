@@ -1,11 +1,7 @@
 module SpeakeasyRubySdk
   class Middleware
     class Config
-      attr_accessor :ingestion_server_url, :speakeasy_version, :api_key, :api_id, :version_id
-
-      def self.attributes
-        @attributes
-      end
+      attr_accessor :ingestion_server_url, :speakeasy_version, :api_key, :api_id, :version_id, :routes, :masking
 
       def self.default
         c = Config.new
