@@ -33,7 +33,7 @@ module SpeakeasyRubySdk
       
       ## Begin Masking
       masked_query_params = masker.mask_query_params unmasked_url.path, query_params
-
+      
       masked_request_headers = masker.mask_request_headers unmasked_url.path, request_headers
       masked_response_headers = masker.mask_response_headers unmasked_url.path, response_headers
 

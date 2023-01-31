@@ -69,7 +69,6 @@ class MaskerTest < Test::Unit::TestCase
     first_cookie = masked_cookies[0]
 
     assert_equal(SpeakeasyRubySdk::Masker::SIMPLE_MASK, first_cookie.value)
-    # assert_equal(query_params[:parsnip], masked_params[:parsnip]) # Should be unchanged
 
   end
 

@@ -159,7 +159,6 @@ module SpeakeasyRubySdk
       mask_body path, body
     end
 
-
   end
 end
 
