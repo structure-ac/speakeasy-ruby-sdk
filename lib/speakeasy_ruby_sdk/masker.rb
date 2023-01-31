@@ -1,7 +1,8 @@
 module SpeakeasyRubySdk
   class Masker
 
-    SIMPLE_MASK = '[***]'
+    SIMPLE_MASK = '__masked__'
+    SIMPLE_NUMBER_MASK = -12321
 
     def initialize config
       @routes = config.routes
@@ -70,14 +71,37 @@ module SpeakeasyRubySdk
       cookies
     end
 
-    def mask_request_body body
-      # TODO
-      body
+    def mask_body path, body
+      masked_body = body
+      if @masking.include? :mask_body_string
+        for attribute in @masking[:mask_body_string][:attributes]
+
+          regex_string = Regexp.new "(\"#{attribute}\": *)(\".*?[^\\\\]\")( *[, \\n\\r}]?)"
+          
+          matches = body.match(regex_string)
+          if matches
+            masked_body = masked_body.gsub(regex_string, "#{matches[1]}\"#{Masker::SIMPLE_MASK}\"#{matches[3]}")
+          end
+        end
+      end
+      if @masking.include? :mask_body_number
+        for attribute in @masking[:mask_body_number][:attributes]
+          regex_string = Regexp.new "(\"#{attribute}\": *)(-?[0-9]+\\.?[0-9]*)( *[, \\n\\r}]?)"
+          matches = body.match(regex_string)
+          if matches
+            masked_body = masked_body.gsub(regex_string, "#{matches[1]}#{Masker::SIMPLE_MASK}#{matches[3]}")
+          end
+        end
+      end
+      masked_body
     end
 
-    def mask_response_body body
-      # TODO
-      body
+    def mask_request_body path, body
+      mask_body path, body
+    end
+
+    def mask_response_body path, body
+      mask_body path, body
     end
 
 

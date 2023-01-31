@@ -6,6 +6,7 @@ module SpeakeasyRubySdk
     attr_reader :start_time, :status, :env, :request, :response, :protocol
     
     def initialize start_time, env, status, response_headers, response_body, masker
+      ## Setup Data
       @start_time = start_time
       @status = status
       @env = env
