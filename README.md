@@ -169,3 +169,21 @@ The `masking` section of the config map takes an array of different masking opti
 In all of the above instances, you may optionally provide an array of mask strings.  If you leave this field out, or pass an empty array, the system will mask with our default mask value "__masked__" (-12321 for numbers).  If you provide an array with a single value, then the system will mask all matches with that value.  If you provide more than one value, then each match will be replaced by the corresponding mask values (if there are too few, then the remaining matches will receive our default mask value).
 
 You may provide as many MaskConfig objects as you desire.
+
+## Embedded Request Viewer Access Tokens
+
+The Speakeasy SDK can generate access tokens for the [https://docs.speakeasyapi.dev/speakeasy-user-guide/request-viewer/embedded-request-viewer](Embedded Request Viewer) that can be used to view requests captured by the SDK.
+
+For documentation on how to configure filters, find that [https://docs.speakeasyapi.dev/speakeasy-user-guide/request-viewer/embedded-request-viewer](HERE).
+
+You are able to request an `EmbeddedAccessToken` from any location in your application, but most likely you will make such a request inside of a `Controller` method.
+
+```rb
+class MyController < ApplicationController
+
+  def action
+    embed = SpeakeasyRubySdk::get_embedded_access_token('customer_id', '=', <some_customer_id>,
+      {api_key: '..snip..'})
+  end
+end
+```

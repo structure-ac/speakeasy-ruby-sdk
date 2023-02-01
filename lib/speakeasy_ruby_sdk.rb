@@ -9,6 +9,7 @@ require "delegate"
 
 require 'speakeasy_pb'
 include Ingest
+include Embedaccesstoken
 
 module SpeakeasyRubySdk
   class RouteWrapper < SimpleDelegator
@@ -76,7 +77,7 @@ module SpeakeasyRubySdk
       http_request = HttpTransaction.new start_time, env, status, response_headers, response_body, @masker
 
       path_hint = ''
-      if @config.routes
+      if @config.routes # todo - handle other routers if not rails
         req = ActionDispatch::Request.new(env)
         found_route = nil
         @config.routes.router.recognize(req) do |route, params|
@@ -111,5 +112,28 @@ module SpeakeasyRubySdk
 
       [status, response_headers, response_body]
     end
+  end
+
+  def self.get_embedded_access_token key, operator, value, config=nil
+    if config.nil?
+      working_config = Middleware::Config.default
+    else
+      working_config = Middleware::Config.default.merge config
+    end
+
+    credentials = GRPC::Core::ChannelCredentials.new()
+    embed_client = Embedaccesstoken::EmbedAccessTokenService::Stub.new(working_config.ingestion_server_url, credentials)
+    request = Embedaccesstoken::EmbedAccessTokenRequest.new
+
+    filter = Embedaccesstoken::EmbedAccessTokenRequest::Filter.new
+    filter.key = key
+    filter.operator = operator
+    filter.value = value
+
+    request.filters.push filter
+
+    metadata = {"x-api-key": working_config.api_key}
+    response = embed_client.get(request, metadata: metadata)
+
   end
 end
