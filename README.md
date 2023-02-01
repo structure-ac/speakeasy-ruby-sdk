@@ -79,6 +79,35 @@ We recommend using the approach native to your framework to limit the applicatio
 
 ## todo - add Sinatra examples
 
+     
+
+## Request Matching
+
+The Speakeasy SDK out of the box will do its best to match requests to your provided OpenAPI Schema. It does this by extracting the path template used by one of the supported routers or frameworks above for each request captured and attempting to match it to the paths defined in the OpenAPI Schema.  In order to enable this functionality include a `routes` directive in your speakeasy configuration - for example in Rails:
+
+```ruby
+  config = {
+    routes: Application.routes,
+    ..snip/..
+  }
+    config.middleware.use SpeakeasyRubySdk::Middleware, config
+
+```
+This isn't always successful or even possible, meaning requests received by Speakeasy will be marked as unmatched, and potentially not associated with your Api, Version or  in the Speakeasy DashApiEndpointsboard.
+
+To help the SDK in these situations you can provide path hints per request handler that match the paths in your OpenAPI Schema:
+
+```ruby
+class YourController < ApplicationController 
+    def action
+      request.env[:path_hint] = '/api/v1/books'
+      ..snip..
+    end
+    ..snip..
+end
+
+```
+
 ## Capturing Customer IDs
 
 To help associate requests with customers/users of your APIs you can provide a customer ID from any controller or route:

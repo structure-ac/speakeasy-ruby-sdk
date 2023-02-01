@@ -86,6 +86,9 @@ module SpeakeasyRubySdk
           path_hint = RouteWrapper.new(found_route).path
         end
       end
+      if ! env[:path_hint].nil?
+        path_hint = env[:path_hint]
+      end
  
       har = HarBuilder.construct_har http_request
       pp har

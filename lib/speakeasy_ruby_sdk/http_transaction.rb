@@ -27,6 +27,7 @@ module SpeakeasyRubySdk
 
       unmasked_url = UrlUtils.resolve_url env
 
+
       request_cookies = CGI::Cookie.parse(request_headers['Cookie'] || '').map {|cookie| [cookie[0], cookie[1][0]] }
       response_cookies = HTTP::Cookie.parse(response_headers['Set-Cookie'] || '', unmasked_url)
 
