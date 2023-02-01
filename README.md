@@ -79,6 +79,36 @@ We recommend using the approach native to your framework to limit the applicatio
 
 ## todo - add Sinatra examples
 
+## Capturing Customer IDs
+
+To help associate requests with customers/users of your APIs you can provide a customer ID from any controller or route:
+
+```ruby
+  def index
+    request.env[:customer_id] = customer_id
+  end
+```
+
+To easily set the `customer_id` on all requests from a Rails controller, use this standard pattern
+
+```ruby
+class myController < ApplicationController
+    before_action set_customer_id
+
+    def index
+      ..snip..
+    end
+    
+    private
+    
+      def set_customer_id
+        req.env[:customer_id] = @session[:customer_id]
+      end
+end
+```
+
+Note: This is not required, but is highly recommended. By setting a customer ID you can easily associate requests with your customers/users in the Speakeasy Dashboard, powering filters in the Request Viewer.
+
 ## Masking sensitive data
 
 Speakeasy can mask sensitive data in the query string parameters, headers, cookies and request/response bodies captured by the SDK. This is useful for maintaining sensitive data isolation, and retaining control over the data that is captured.
@@ -87,7 +117,7 @@ Using the Only Tracking Some Routes section above you can completely ignore cert
 
 But if you would like to be more selective you can mask certain sensitive data using our middleware controller allowing you to mask fields as needed in different handlers:
 
-```
+```ruby
   config = {
     ...
     masking: [
@@ -108,3 +138,5 @@ The `masking` section of the config map takes an array of different masking opti
   - `SpeakeasyRubySdk::MaskConfig.new(:response_body_number, attributes, mask_strings)` specified response body fields with an optional mask. Supports numeric fields only. Matches using regex.
 
 In all of the above instances, you may optionally provide an array of mask strings.  If you leave this field out, or pass an empty array, the system will mask with our default mask value "__masked__" (-12321 for numbers).  If you provide an array with a single value, then the system will mask all matches with that value.  If you provide more than one value, then each match will be replaced by the corresponding mask values (if there are too few, then the remaining matches will receive our default mask value).
+
+You may provide as many MaskConfig objects as you desire.
