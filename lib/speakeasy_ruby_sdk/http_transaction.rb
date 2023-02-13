@@ -3,17 +3,16 @@ require 'http-cookie'
 module SpeakeasyRubySdk
   class HttpTransaction
 
-    attr_reader :start_time, :status, :env, :request, :response, :protocol
-    
-    def initialize start_time, env, status, response_headers, response_body, masker
+    attr_reader :time_utils, :status, :env, :request, :response, :protocol, :port
+
+    def initialize time_utils, env, status, response_headers, response_body, masker
       ## Setup Data
-      @start_time = start_time
+      @time_utils = time_utils
       @status = status
       @env = env
       @protocol = env['SERVER_PROTOCOL']
-      ## TODO - Content-Type and Content-Length request headers are not handled
-      ## consistently, and my initial research couldn't expose them.
-      
+      @port = env['SERVER_PORT']
+
       # normalize request headers
       request_headers = Hash[*env.select {|k,v| k.start_with? 'HTTP_'}
         .collect {|k,v| [k.sub(/^HTTP_/, ''), v]}

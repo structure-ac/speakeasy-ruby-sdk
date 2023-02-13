@@ -204,19 +204,12 @@ module SpeakeasyRubySdk
       res
     end
 
-    def self.construct_timings
-      # These fiends are requiered, but we don't have broswer data
-      # with which to populate them. Hence the -1 static values
+    def construct_timings
       return {
         "send": -1,
         "wait": -1,
         "receive": -1,
       }
-    end
-
-    def self.time_difference_ms end_time, start_time
-      #TODO put this somewhere more appropriate
-      ((end_time - start_time) * 1000.0).to_i
     end
     
     def self.construct_entries http_transaction
