@@ -2,7 +2,6 @@ require 'test/unit'
 require 'rack/test'
 require 'json'
 require_relative '../lib/speakeasy_ruby_sdk'
-# require 'action_dispatch/http/response'
 
 class BasicHttpTest < Test::Unit::TestCase
   include Rack::Test::Methods
