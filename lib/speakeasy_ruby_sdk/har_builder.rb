@@ -165,19 +165,43 @@ module SpeakeasyRubySdk
       raw_headers.bytesize
     end
 
-    def self.construct_response response
-      ## TODO handle status not being an int?
-      return {
+    def construct_request request
+      req = {
+        "method": request.method,
+        "url": request.url,
+        "httpVersion": request.transaction.protocol,
+        "cookies": self.construct_request_cookies(request.cookies),
+        "headers": self.construct_header_records(request.headers),
+        "queryString": self.construct_query_records(request.query_params),
+        "headersSize": self.calculate_header_size(request.headers),
+        "bodySize": request.content_length.to_i,
+      }
+      if ! self.construct_post_data(request).nil?
+        req["postData"] = self.construct_post_data(request)
+      end
+      req
+    end
+
+    def construct_response response
+      res = {
         "status": response.status,
         "statusText":  Rack::Utils::HTTP_STATUS_CODES[response.status],
         "httpVersion":  response.transaction.protocol,
         "cookies":  self.construct_response_cookies(response.cookies),
         "headers":  self.construct_header_records(response.headers),
-        "content":  self.construct_response_content(response.body, response.headers),
-        "redirectURL":  response.headers.fetch('Location', ''),
-        "headersSize": response.headers.to_s.bytesize,
-        "bodySize":  response.body.bytesize, # TODO - bodysize vs content size. see go sdk
+        "content":  self.construct_response_content(response.status, response.body, response.headers),
+        "redirectURL":  response.headers.fetch('location', ''),
+        "headersSize": self.calculate_header_size(response.headers)
       }
+
+      if response.status == 304
+        res["bodySize"] = 0
+      elsif !response.headers.include?('content-length')
+        res["bodySize"] = -1
+      else
+        res["bodySize"] = response.body.bytesize
+      end
+      res
     end
 
     def self.construct_timings
