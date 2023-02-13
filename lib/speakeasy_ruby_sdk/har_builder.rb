@@ -151,18 +151,18 @@ module SpeakeasyRubySdk
       end
     end
 
-    def self.construct_request request
-      return {
-        "method": request.method,
-        "url": request.url.path, ## Should this be the full url?
-        "httpVersion": request.transaction.protocol,
-        "cookies": self.construct_request_cookies(request.cookies),
-        "headers": self.construct_header_records(request.headers),
-        "queryString": self.construct_query_records(request.query_params),
-        "postData":    self.construct_post_data(request.body, request.headers),
-        "headersSize": request.headers.to_s.bytesize, # TODO - how is this calculated?
-        "bodySize": request.body.bytesize, ## TODO - double check this too.
-      }
+    def calculate_header_size headers
+      raw_headers = ''
+      for k, v in headers
+        if v.is_a? Array
+          for value in v
+            raw_headers += "#{k}: #{value}\r\n"
+          end
+        else
+          raw_headers += "#{k}: #{v}\r\n"
+        end
+      end
+      raw_headers.bytesize
     end
 
     def self.construct_response response
