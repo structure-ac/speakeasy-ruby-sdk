@@ -101,17 +101,24 @@ module SpeakeasyRubySdk
       final_headers.sort_by(&lambda{ |h| h[:name] })
     end
 
-    def self.construct_post_data body, headers
-      content_type = headers['Content-Type']
-      if content_type.blank?
-        # TODO Mimetype detection - open question
-        content_type = "application.octet-stream"
+    def construct_post_data request
+      content_type = request.headers['content-type']
+      if content_type.nil? || content_type.length == 0
+        content_type = "application/octet-stream"
       end
-      return {
-        "mimeType": content_type,
-        "params": self.construct_empty_params,
-        "text": body
-      }
+      if request.body.empty?
+        return nil
+      elsif (request.headers.include?('content-length')) && (!request.headers['content-length'].nil?) && (request.headers['content-length'].to_i > @api_config.max_capture_size)
+        return {
+          "mimeType": content_type,
+          "text": "--dropped--"
+        }
+      else
+        return {
+          "mimeType": content_type,
+          "text": request.body
+        }
+      end
     end
     def self.construct_response_content body, headers
       content_type = headers['Content-Type']
