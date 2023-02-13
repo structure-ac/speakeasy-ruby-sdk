@@ -1,14 +1,18 @@
 module SpeakeasyRubySdk
-  module HarBuilder
+  class HarBuilder
 
-    def self.construct_creator name, version
+    def initialize api_config
+      @api_config = api_config
+    end
+
+    def construct_creator name, version
       return {
         "name": name,
         "version": version
       }
     end
 
-    def self.construct_log version, creator, entries, comment
+    def construct_log version, creator, entries, comment
       return {
         'log': {
           "version": version,
@@ -20,15 +24,15 @@ module SpeakeasyRubySdk
     end
 
 
-    def self.construct_empty_cache
+    def construct_empty_cache
       return {
       }
     end
-    def self.construct_empty_params
+    def construct_empty_params
       return []
     end
 
-    def self.construct_query_records query_params
+    def construct_query_records query_params
       query_params.map {|k, v| {
         "name": k,
         "value": v
@@ -53,16 +57,16 @@ module SpeakeasyRubySdk
       end
     end
 
-    def self.construct_request_cookies cookies
-      if cookies.present?
+    def construct_request_cookies cookies
+      if cookies.nil?
+        return []
+      else
         return cookies.map{ |cookie|
           {
             'name': cookie[0],
             'value': cookie[1]
           }
-        }
-      else
-        return []
+        }.sort_by(&lambda{ |c| c[:name] })
       end
     end
 

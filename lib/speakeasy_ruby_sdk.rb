@@ -19,12 +19,16 @@ module SpeakeasyRubySdk
   end
 
   class Middleware
+    attr_accessor :ingest_client
     attr_reader :config
 
     def initialize(app, config=nil)
       @config = Config.default.merge config
       @app = app
       @masker = SpeakeasyRubySdk::Masker.new @config
+      credentials = GRPC::Core::ChannelCredentials.new()
+      @ingest_client = Ingest::IngestService::Stub.new(@config.ingestion_server_url, credentials)
+
     end
    
     def call(env)
@@ -51,11 +55,8 @@ module SpeakeasyRubySdk
         path_hint = env[:path_hint]
       end
  
-      har = HarBuilder.construct_har http_request
-      pp har
-
-      credentials = GRPC::Core::ChannelCredentials.new()
-      @ingest_client = Ingest::IngestService::Stub.new(@config.ingestion_server_url, credentials)
+      har_builder = HarBuilder.new @config
+      har = har_builder.construct_har http_transaction
 
       request = Ingest::IngestRequest.new
       request.api_id = @config.api_id
