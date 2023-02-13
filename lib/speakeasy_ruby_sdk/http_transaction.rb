@@ -4,6 +4,22 @@ module SpeakeasyRubySdk
   class HttpTransaction
 
     attr_reader :time_utils, :status, :env, :request, :response, :protocol, :port
+    
+    def handle_forward_headers request_headers
+      if request_headers.include? 'x-forwarded-proto' && request_headers['x-forwarded-proto']
+        scheme = request_headers['x-forwarded-proto'].downcase
+      elsif request_headers.include? 'x-forwarded-scheme' && request_headers['x-forwarded-scheme']
+        scheme = request_headers['x-forwarded-scheme'].downcase
+      elsif request_headers.include? 'forwarded' && request_headers['forwarded']
+        forwarded = request_headers['forwarded']
+        protoRegex = Regexp.new(/(?i)(?:proto=)(https|http)/)
+        matches = forwarded.match(protoRegexp)
+        if matches.length > 1
+          scheme = matches[1].downcase
+        end
+      end
+      scheme
+    end
 
     def initialize time_utils, env, status, response_headers, response_body, masker
       ## Setup Data
@@ -13,6 +29,13 @@ module SpeakeasyRubySdk
       @protocol = env['SERVER_PROTOCOL']
       @port = env['SERVER_PORT']
 
+      if ! response_body.nil? && response_body.respond_to?(:body)
+        response_body = response_body.body
+      elsif !response_body.nil? && response_body.respond_to?(:join)
+        response_body = response_body.join
+      elsif response_body.nil?
+        response_body = ''
+      end
       # normalize request headers
       request_headers = Hash[*env.select {|k,v| k.start_with? 'HTTP_'}
         .collect {|k,v| [k.sub(/^HTTP_/, ''), v]}
