@@ -212,20 +212,23 @@ module SpeakeasyRubySdk
       }
     end
     
-    def self.construct_entries http_transaction
-      return [{
-        "startedDateTime": http_transaction.start_time.iso8601,
-        "time": self.time_difference_ms(Time.now, http_transaction.start_time),
+    def construct_entries http_transaction
+      entry = {
+        "startedDateTime": http_transaction.time_utils.start_time.strftime("%Y-%m-%dT%H:%M:%S.%NZ"),
+        "time": http_transaction.time_utils.elapsed_time,
         "request": self.construct_request(http_transaction.request),
         "response": self.construct_response(http_transaction.response),
-        "connection": http_transaction.request.url.port.to_s,
         "serverIPAddress": http_transaction.request.url.hostname,
         "cache": self.construct_empty_cache,
         "timings": self.construct_timings
-      }]
+      }
+      if !http_transaction.port.nil? && http_transaction.port != "80"
+        entry["connection"] = http_transaction.port
+      end
+      return [entry]
     end
 
-    def self.construct_har http_transaction
+    def construct_har http_transaction
       creator = construct_creator SpeakeasyRubySdk.to_s, SpeakeasyRubySdk::VERSION
       version = "1.2"
       comment = "request capture for #{http_transaction.request.url.to_s}"
