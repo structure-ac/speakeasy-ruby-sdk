@@ -25,6 +25,10 @@ module SpeakeasyRubySdk
 
     def initialize(app, config=nil)
       @config = Config.default.merge config
+      validation_errors = @config.validate
+      if validation_errors.length > 0
+        raise Exception.new validation_errors
+      end
       @app = app
       @masker = SpeakeasyRubySdk::Masker.new @config
       credentials = GRPC::Core::ChannelCredentials.new()
@@ -41,6 +45,7 @@ module SpeakeasyRubySdk
 
       status, response_headers, response_body = @app.call(env)
 
+      ## If we are not in test, record the end time after calling the app
       if !env.include? 'time_utils'
         time_utils.set_end_time
       end
@@ -48,7 +53,8 @@ module SpeakeasyRubySdk
       http_transaction = HttpTransaction.new time_utils, env, status, response_headers, response_body, @masker
 
       path_hint = ''
-      if @config.routes # todo - handle other routers if not rails
+      # todo - handle other routers if not rails
+      if @config.routes 
         req = ActionDispatch::Request.new(env)
         found_route = nil
         @config.routes.router.recognize(req) do |route, params|
