@@ -13,48 +13,8 @@ include Embedaccesstoken
 
 module SpeakeasyRubySdk
   class RouteWrapper < SimpleDelegator
-    def endpoint
-      app.dispatcher? ? "#{controller}##{action}" : rack_app.inspect
-    end
-
-    def constraints
-      requirements.except(:controller, :action)
-    end
-
-    def rack_app
-      app.rack_app
-    end
-
     def path
       super.spec.to_s
-    end
-
-    def name
-      super.to_s
-    end
-
-    def reqs
-      @reqs ||= begin
-        reqs = endpoint
-        reqs += " #{constraints}" unless constraints.empty?
-        reqs
-      end
-    end
-
-    def controller
-      parts.include?(:controller) ? ":controller" : requirements[:controller]
-    end
-
-    def action
-      parts.include?(:action) ? ":action" : requirements[:action]
-    end
-
-    def internal?
-      internal
-    end
-
-    def engine?
-      app.engine?
     end
   end
 
