@@ -81,11 +81,24 @@ module SpeakeasyRubySdk
       end
     end
 
-    def self.construct_header_records headers
-      headers.map {|k, v| {
-        "name": k,
-        "value": v
-      } }.sort_by(&lambda{ |h| h[:name] })
+    def construct_header_records headers
+      final_headers = []
+      for k, v in headers
+        if v.is_a? Array
+          for value in v
+            final_headers << {
+              "name": k,
+              "value": value
+            }
+          end
+        else
+          final_headers << {
+            "name": k,
+            "value": v
+          }
+        end
+      end
+      final_headers.sort_by(&lambda{ |h| h[:name] })
     end
 
     def self.construct_post_data body, headers
