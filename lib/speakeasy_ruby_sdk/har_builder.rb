@@ -120,18 +120,35 @@ module SpeakeasyRubySdk
         }
       end
     end
-    def self.construct_response_content body, headers
-      content_type = headers['Content-Type']
-      if content_type.blank?
-        # TODO Mimetype detection - open question
-        content_type = "application.octet-stream"
+
+    def construct_response_content status, body, headers
+      content_type = headers['content-type']
+      if content_type.nil? || content_type.length == 0
+        content_type = "application/octet-stream"
       end
-      ## TODO handle streaming bodies?
-      return {
-        "mimeType": content_type,
-        "text": body,
-        "size": body.bytesize
-      }
+      if status == 304
+        return {
+          "mimeType": content_type,
+          "size": -1
+        }
+      elsif (headers.include?('content-length')) && (!headers['content-length'].nil?) && (headers['content-length'].to_i > @api_config.max_capture_size)
+        return {
+          "mimeType": content_type,
+          "text": "--dropped--",
+          "size": -1
+        }
+      elsif ! headers.include?('content-length')
+        return {
+          "mimeType": content_type,
+          "size": -1
+        }
+      else
+        return {
+          "mimeType": content_type,
+          "text": body,
+          "size": headers['content-length'].to_i
+        }
+      end
     end
 
     def self.construct_request request
