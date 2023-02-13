@@ -39,22 +39,33 @@ module SpeakeasyRubySdk
       } }.sort_by(&lambda{ |h| h[:name] })
     end
 
-    def self.construct_response_cookies cookies
-      if cookies.present?
-        return cookies.map{ |cookie|
-          {
-            'name': cookie.name,
+    def construct_response_cookies cookies
+      final_cookies = []
+      if ! cookies.nil?
+        for cookie in cookies
+          new_cookie = {
+            'name': cookie.name, 
             'value': cookie.value,
-            'path': cookie.path,
-            'domain': cookie.domain,
-            'expires': cookie.expires,
-            'httpOnly': cookie.httponly,
-            'secure': cookie.secure
           }
-        }
-      else
-        return []
+          if cookie.path && cookie.path != '/'
+            new_cookie['path'] = cookie.path
+          end
+          if cookie.domain
+            new_cookie['domain'] = cookie.domain
+          end
+          if cookie.expires
+            new_cookie['expires'] = cookie.expires.strftime("%Y-%m-%dT%H:%M:%S.%NZ")
+          end
+          if cookie.httponly
+            new_cookie['httpOnly'] = cookie.httponly
+          end
+          if cookie.secure
+            new_cookie['secure'] = cookie.secure
+          end
+          final_cookies << new_cookie
+        end
       end
+      return final_cookies.sort_by(&lambda{ |c| c[:name] })
     end
 
     def construct_request_cookies cookies
