@@ -53,7 +53,7 @@ module SpeakeasyRubySdk
       http_transaction = HttpTransaction.new time_utils, env, status, response_headers, response_body, @masker
 
       path_hint = ''
-      # todo - handle other routers if not rails
+      # todo - support other frameworks than rails
       if @config.routes 
         req = ActionDispatch::Request.new(env)
         found_route = nil

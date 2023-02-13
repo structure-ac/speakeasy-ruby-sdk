@@ -77,10 +77,6 @@ This allows multiple instances of the SDK to be associated with different router
  
 We recommend using the approach native to your framework to limit the application of the Speakeasy middleware.  In Rails, that approach is [Engines](https://guides.rubyonrails.org/engines.html), in Sinatra, middleware are `use`'d by controllers, so add the directive to a Controller which is the parent of those routes you wish to track.
 
-## todo - add Sinatra examples
-
-     
-
 ## Request Matching
 
 The Speakeasy SDK out of the box will do its best to match requests to your provided OpenAPI Schema. It does this by extracting the path template used by one of the supported routers or frameworks above for each request captured and attempting to match it to the paths defined in the OpenAPI Schema.  In order to enable this functionality include a `routes` directive in your speakeasy configuration - for example in Rails:
@@ -100,7 +96,7 @@ To help the SDK in these situations you can provide path hints per request handl
 ```ruby
 class YourController < ApplicationController 
     def action
-      request.env[:path_hint] = '/api/v1/books'
+      request.env[:path_hint] = '/api/v1/<resource>'
       ..snip..
     end
     ..snip..
@@ -121,7 +117,7 @@ To help associate requests with customers/users of your APIs you can provide a c
 To easily set the `customer_id` on all requests from a Rails controller, use this standard pattern
 
 ```ruby
-class myController < ApplicationController
+class MyController < ApplicationController
     before_action set_customer_id
 
     def index
