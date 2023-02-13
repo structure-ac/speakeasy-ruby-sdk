@@ -59,6 +59,9 @@ module SpeakeasyRubySdk
       response_cookies = HTTP::CookieJar.new()
       if response_headers.include? 'set-cookie'
         cookies = response_headers['set-cookie']
+        if cookies.is_a? String
+          cookies = cookies.split("\n")
+        end
         cookies.map { |cookie| response_cookies.parse(cookie, unmasked_url) }
       end
 

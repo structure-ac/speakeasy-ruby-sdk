@@ -12,12 +12,11 @@ module SpeakeasyRubySdk
         request_uri = request_uri.split('?')[0]
       end
       scheme = env['rack.url_scheme']
-      host = env['HTTP_HOST']
       if !query_params.nil? && !query_params.empty?
         updated_query_string = URI.encode_www_form query_params
-        URI("#{scheme}://#{host}#{request_uri}?#{updated_query_string}")
+        URI("#{scheme}://#{request_uri}?#{updated_query_string}")
       else 
-        URI("#{scheme}://#{host}#{request_uri}")
+        URI("#{scheme}://#{request_uri}")
       end
     end
   end

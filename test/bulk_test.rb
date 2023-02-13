@@ -54,7 +54,7 @@ class BulkTest < Test::Unit::TestCase
     for pair in file_pairs
       input = JSON.parse(File.read(pair.infile))
       puts "Testing #{pair.infile}, #{pair.outfile}"
-      config = {api_id: '123', version_id: '1.0'}
+      config = {api_id: '123', api_key: 'abcd', version_id: '1.0'}
 
       ## Parse Masking Inputs
       masking = []
